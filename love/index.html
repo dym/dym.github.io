@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Server Console</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff66;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #terminal {
+            white-space: pre-wrap;
+            width: 80%;
+            max-width: 800px;
+            text-shadow: 0 0 5px #00ff66;
+            margin-bottom: 10px;
+        }
+        .input-line {
+            display: flex;
+            width: 80%;
+            max-width: 800px;
+            font-size: 1.1em;
+        }
+        .prompt {
+            color: #5dade2;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            flex-grow: 1;
+        }
+        .heart { color: #ff3366; text-shadow: 0 0 15px #ff3366; }
+        .system-msg { color: #f1c40f; }
+        .audio-msg { color: #cc66ff; }
+    </style>
+</head>
+<body>
+
+<div id="terminal">Welcome to Home-SRV-01 (Ubuntu 24.04 LTS)
+* Documentation: https://docs.home.local
+* System load:  0.05
+* Temperature:  36.6°C
+
+Last login: Tue Mar  3 17:40:22 2026 from 192.168.1.15
+
+Type 'help' for available commands.</div>
+
+<div class="input-line" id="input-zone">
+    <span class="prompt">user@home:~$</span>
+    <input type="text" id="cmd-input" autofocus autocomplete="off">
+</div>
+
+<script>
+    const terminal = document.getElementById('terminal');
+    const inputZone = document.getElementById('input-zone');
+    const input = document.getElementById('cmd-input');
+
+    const bgMusic = new Audio('track.wav');
+    bgMusic.loop = true;
+
+    const frames = [
+        `
+
+            **   **
+          ***** *****
+         *************
+          ****R+D****
+           *********
+            *******
+             *****
+              ***
+               *
+
+        `,
+        `
+          ***     ***
+        ******   ******
+       ******** ********
+        ***************
+         *****R+D*****
+          ***********
+           *********
+            *******
+             *****
+              ***
+               *
+        `
+    ];
+
+    const messages = [
+        "> System check... OK",
+        "> Searching for the best partner...",
+        "> Target found: MY WIFE",
+        "> Loading 'Love_and_Gratitude.exe'...",
+        "> Done.",
+        ""
+    ];
+    const before_frames = [
+        `
+
+            
+          
+         
+        R             D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+         R           D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+          R         D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+           R       D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+            R     D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+             R   D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+              R D
+           
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+         
+              R+D
+           
+            
+             
+              
+               
+
+        `,
+
+        `
+
+            
+          
+             
+             *R+D*
+             
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+             *
+             *R+D*
+                 *
+            
+             
+              
+               
+
+        `,
+
+        `
+
+            
+          
+             **
+             *R+D*
+                **
+            
+             
+              
+               
+
+        `,
+
+        `
+
+            
+          
+             ***
+             *R+D*
+               ***
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+             ****
+             *R+D*
+              ****
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+             *****
+             *R+D*
+             *****
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+             ******
+             *R+D*
+            ******
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+             ******
+            **R+D**
+            ******
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+          
+            *******
+            **R+D**
+            *******
+            
+             
+              
+               
+
+        `,
+        `
+
+            
+            *** ***
+           *********
+           ***R+D***
+           *********
+            *******
+             
+              
+               
+
+        `,
+        `
+
+            
+           **** ****
+          ***********
+          ****R+D****
+           *********
+            *******
+             *****
+              
+               
+
+        `,
+        `
+
+            **   **
+          ***** *****
+         *************
+          ****R+D****
+           *********
+            *******
+             *****
+              ***
+               *
+
+        `,
+    ];
+
+    input.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const cmd = input.value.trim().toLowerCase();
+            processCommand(cmd);
+            input.value = "";
+        }
+    });
+
+    function processCommand(cmd) {
+        if (cmd === 'love' || cmd === 'sudo love') {
+            startAnimation();
+        } else if (cmd === 'help') {
+            terminal.innerHTML += `\n> Available commands: help, status, love, exit`;
+        } else if (cmd === 'status') {
+            terminal.innerHTML += `\n> System: Online\n> Heart: Overflowing...`;
+        } else if (cmd === '') {
+            terminal.innerHTML += `\nuser@home:~$`;
+        } else {
+            terminal.innerHTML += `\n> Command '${cmd}' not found. Did you mean 'love'?`;
+        }
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function startAnimation() {
+        inputZone.style.display = 'none';
+        
+        // Запуск музики
+        bgMusic.play().catch(e => console.log("Audio play failed:", e));
+
+        terminal.innerHTML = "\n<span class='system-msg'>[EXECUTING COMMAND: LOVE]</span>\n" +
+                           "<span class='audio-msg'>[AUDIO STREAM INITIATED...]</span>\n";
+        
+        let i = 0;
+        const loading = setInterval(() => {
+            terminal.innerHTML += "#";
+            i++;
+            if (i > 30) {
+                clearInterval(loading);
+                terminal.innerHTML = "";
+                typeMessage();
+            }
+        }, 90);
+    }
+
+
+    let msgIndex = 0;
+    let frameIdx = 0;
+    let bfIndex = 0;
+
+    function typeMessage() {
+        if (msgIndex < messages.length) {
+            terminal.innerHTML += messages[msgrIndex] + "\n";
+            msgIndex++;
+            setTimeout(typeMessage, 800);
+        } else if (bfIndex < before_frames.length) {
+            terminal.innerHTML = messages.join("\n") + `<div class="heart">${before_frames[bfIndex]}</div>`;
+            bfIndex++;
+            setTimeout(typeMessage, 300);
+        } else {
+            animateHeart();
+        }
+    }
+
+    function animateHeart() {
+        setInterval(() => {
+            terminal.innerHTML = messages.join("\n") + `<div class="heart">${frames[frameIdx % 2]}</div>` +
+            "\n\n<div style='text-align: center; font-size: 1.5em;'>"
+            if (frameIdx > 5) {
+              terminal.innerHTML += "<b>❤❤❤  З  ДНЕМ  НАРОДЖЕННЯ, КОХАНА!  ❤❤❤</b>\n</div>";
+            }
+            frameIdx++;
+        }, 500);
+    }
+</script>
+
+</body>
+</html>
