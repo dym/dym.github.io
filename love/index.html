@@ -105,7 +105,7 @@ Type 'help' for available commands.</div>
         "> System check... OK",
         "> Searching for the best partner...",
         "> Target found: MY WIFE",
-        "> Loading 'Love_and_Gratitude.exe'...",
+        "> Loading 'Love_and_Gratitude.dat'...",
         "> Done.",
         ""
     ];
@@ -392,6 +392,8 @@ Type 'help' for available commands.</div>
             terminal.innerHTML += `\n> System: Online\n> Heart: Overflowing...`;
         } else if (cmd === '') {
             terminal.innerHTML += `\nuser@home:~$`;
+        } else if (cmd === 'exit') {
+            terminal.innerHTML += `\n> You can't run away from your destiny. Type 'love'`;
         } else {
             terminal.innerHTML += `\n> Command '${cmd}' not found. Did you mean 'love'?`;
         }
@@ -426,7 +428,7 @@ Type 'help' for available commands.</div>
 
     function typeMessage() {
         if (msgIndex < messages.length) {
-            terminal.innerHTML += messages[msgrIndex] + "\n";
+            terminal.innerHTML += messages[msgIndex] + "\n";
             msgIndex++;
             setTimeout(typeMessage, 800);
         } else if (bfIndex < before_frames.length) {
@@ -442,8 +444,11 @@ Type 'help' for available commands.</div>
         setInterval(() => {
             terminal.innerHTML = messages.join("\n") + `<div class="heart">${frames[frameIdx % 2]}</div>` +
             "\n\n<div style='text-align: center; font-size: 1.5em;'>"
-            if (frameIdx > 5) {
+            if (frameIdx > 3) {
               terminal.innerHTML += "<b>❤❤❤  З  ДНЕМ  НАРОДЖЕННЯ, КОХАНА!  ❤❤❤</b>\n</div>";
+            }
+            if (frameIdx > 6) {
+              terminal.innerHTML += "<b>ТИ  НАЙКРАЩЕ,  ЩО  ЗІ  МНОЮ  СТАЛОСЯ!</b>\n</div>";
             }
             frameIdx++;
         }, 500);
